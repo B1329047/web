@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        table {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 6px;
+        }
+
+        tr:nth-child(even){background-color: #f2f2f2;}
+
+        tr:hover {background-color: #ddd;}
+
+        th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+        #popover {
+            display: none; /* 預設隱藏 */
+            position: absolute; /* 絕對定位，才能隨滑鼠移動 */
+            background-color: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            min-width: 250px;
+            font-family: sans-serif;
+        }
+    </style>
+    <body>
+            <h1>資工選課表</h1>
+
+            <table id = "csie">
+                <tr>
+                    <th>開課單位</th>
+                    <th>課程名稱</th>
+                    <th>授課教師</th>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td class="course-link" onclick="openCoursePopover(event, '物件導向軟體設計')">物件導向軟體設計</td>
+                    <td>黃崇源</td>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td>計算機網路實驗</td>
+                    <td>李春良</td>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td>作業系統實務</td>
+                    <td>張哲維</td>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td>生物統計</td>
+                    <td>陳光武</td>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td>通訊系統</td>
+                    <td>陳仁輝</td>
+                </tr>
+                <tr>
+                    <td>資工系</td>
+                    <td>軟硬體專題(2)</td>
+                    <td>魏志達</td>
+                </tr>
+            </table>
+            <div id="popover">
+                <span class="close-btn" onclick="closePopover()">×</span>
+                <div class="popover-header" id="pop-title">課程資訊</div>
+                <div id="pop-content" class="popover-content"></div>
+            </div>
+            <button onclick="changeResult()">Change</button>
+            <script>
+                function changeResult(){
+                    var mytable = document.getElementById("csie");
+                    mytable.rows[1].cells[2].innerHTML = "李春良";
+                }
+                function openCoursePopover(event, courseName) {
+                    var popover = document.getElementById("popover");
+                    var title = document.getElementById("pop-title");
+                    var content = document.getElementById("pop-content");
+
+                    title.innerText = courseName;
+                    
+                    // 填寫詳細資料
+                    content.innerHTML = `
+                        <div style="margin: 5px 0;"><strong>學年/學期：</strong> 114 / 2</div>
+                        <div style="margin: 5px 0;"><strong>年級-班別：</strong> 3-甲</div>
+                        <div style="margin: 5px 0;"><strong>科目代號：</strong> IT3004(3)</div>
+                        <div style="margin: 5px 0;"><strong>上課時間：</strong> 星期五 09:10 ~ 12:00</div>
+                        <div style="margin: 5px 0;"><strong>地點：</strong> 資工系電腦教室2</div>
+                        <div style="margin: 5px 0;"><strong>人數限制：</strong> 10 - 60 人</div>
+                        <div style="margin: 5px 0;"><strong>目前人數：</strong> 本校 64 人</div>
+                    `;
+
+                    // 顯示並定位
+                    popover.style.display = "block";
+                    popover.style.left = (event.pageX + 15) + "px";
+                    popover.style.top = (event.pageY + 15) + "px";
+                    
+                    // 避免點擊事件傳遞到 window 導致立即關閉
+                    event.stopPropagation();
+                }
+
+                function closePopover() {
+                    document.getElementById("popover").style.display = "none";
+                }
+
+                // 點擊頁面其他地方時關閉
+                window.onclick = function(event) {
+                    var popover = document.getElementById("popover");
+                    if (popover.style.display === "block") {
+                        closePopover();
+                    }
+                }
+            </script>
+    </body>
+</html>
