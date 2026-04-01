@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>index</title>
+</head>
+<body>
+    <script>
+        function tree(n) {
+            printTreeTop(n);
+            printTreeBottom(n);
+        }
+
+        function printTreeTop(n) {
+            for (let i = 1; i <= n; i++) {
+                let line = repeatchar(n - i, ' ') + repeatchar(2 * i - 1, '*');
+                console.log(line);
+            }
+        }
+
+        function printTreeBottom(n) {
+            for (let i = 0; i < 3; i++) {
+                let line = repeatchar(n - 1, ' ') + '*';
+                console.log(line);
+            }
+        }
+
+        function repeatchar(count, char) {
+            let result = "";
+            for (let i = 0; i < count; i++) {
+                result += char;
+            }
+            return result;
+        }
+
+        tree(4);
+    </script>
+</body>
+</html>
