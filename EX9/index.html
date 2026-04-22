@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>EX9</title>
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EX9: Flickr API Photo Gallery</title>
+    <style>
+        /* 從投影片 Page 17 擷取的 CSS */
+        .gallery {
+            --g: 6px; /* the gap */
+            display: grid;
+            width: 1200px; /* the size */
+            aspect-ratio: 1;
+            grid: auto-flow 1fr / repeat(3, 1fr);
+            gap: var(--g);
+        }
+        .gallery img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%);
+            cursor: pointer;
+            transition: .5s;
+        }
+        .gallery img:hover {
+            filter: grayscale(0);
+        }
+        .gallery img:nth-child(2) {
+            grid-area: 1 / 2 / span 2 / span 2;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, calc(50% + var(--g)/4) 100%, 0 calc(50% - var(--g)/4));
+        }
+        .gallery img:nth-child(3) {
+            grid-area: 2 / 1 / span 2 / span 2;
+            clip-path: polygon(0 0, calc(50% - var(--g)/4) 0, 100% calc(50% + var(--g)/4), 100% 100%, 0 100%);
+        }
+    </style>
+</head>
+
+  </head>
+    
+  <body>
+  <body>
+
+    <button onclick="getimg()">Get IMG</button>
+    <div id='gallery' class="gallery"></div>
+
+    <script>
+        var dataUrl = 'https://www.flickr.com/services/feeds/photos_public.gne?format=json&nojsoncallback=1';
+
+        function getimg() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', dataUrl, true);
+            xhr.send();
+            
+            xhr.onload = function () {
+                var data = JSON.parse(this.responseText);
+                
+
+                add_new_img(data.items); 
+            }
+        }
+
+        function add_new_img(dataset) {
+            var gal = document.getElementById("gallery");
+
+            gal.innerHTML = "";
+
+            dataset.forEach(function(item) {
+                console.log(item); 
+                var img = document.createElement("img");
+                
+
+                img.setAttribute("src", item.media.m); 
+                
+                gal.appendChild(img);
+            });
+        }
+    </script>
+</body>
+    <script  src="./script.js"></script>
+
+  </body>
+  
+</html>
