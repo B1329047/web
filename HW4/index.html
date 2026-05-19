@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>EX8 - 觀光展覽（分頁與搜尋版）</title>
+  </head>
+    
+  <body>
+    <style>
+        table {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        td, th {
+            border: 1px solid #ddd;
+            padding: 6px;
+        }
+
+        tr:nth-child(even){background-color: #f2f2f2;}
+
+        tr:hover {background-color: #ddd;}
+
+        th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        .search-container {
+            margin-bottom: 15px;
+        }
+
+        .pagination-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+
+    <h1>景點觀光展覽資訊</h1>
+
+    <div class="search-container">
+      <label for="searchInput">名稱搜尋：</label>
+      <input type="text" id="searchInput" onchange="window.myPagination.handleSearch()">
+    </div>
+
+    <table id="csie" class="table">
+      <tr>
+        <th>名稱</th>
+        <th>地點</th>
+        <th>票價</th>
+      </tr>
+    </table>
+
+    <button onclick="DelOldData()">DelOldData</button>
+
+    <div class="pagination-container">
+      <button onclick="window.myPagination.prevPage()" id="btnPrev">上一頁</button>
+      <span id="pageInfo">載入中...</span>
+      <button onclick="window.myPagination.nextPage()" id="btnNext">下一頁</button>
+    </div>
+
+    <script src="./script.js"></script>
+
+    <script>
+      (function() {
+        // 設定每頁 10 筆
+        const itemsPerPage = 10;
+        let currentPage = 1;
+        let allRows = [];       // 存放所有資料列的備份
+        let filteredRows = [];  // 存放搜尋後的資料列
+
+        // 核心邏輯：等原本的 script.js 透過 Ajax 把資料塞進表格後，我們把它們攔截下來做分頁
+        const table = document.getElementById('csie');
+        
+        // 監聽表格變化 (當 Ajax 新增資料進來時會觸發)
+        const observer = new MutationObserver(() => {
+          // 抓取目前表格內除了標題(第0行)以外的所有資料行
+          const currentRows = Array.from(table.rows).slice(1);
+          
+          // 防呆：如果現在展示的行數大於 10 筆，代表是 Ajax 剛抓完「全部原始資料」丟進來的瞬間
+          if (currentRows.length > itemsPerPage && !window.myPagination.isRendering) {
+              allRows = currentRows;
+              filteredRows = currentRows;
+              currentPage = 1;
+              showPage();
+          }
+        });
+
+        observer.observe(table, { childList: true, subtree: true });
+
+        // 負責隱藏/顯示對應頁數資料的函式
+        function showPage() {
+          window.myPagination.isRendering = true; // 鎖定，防止無窮迴圈
+          
+          const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+          
+          // 過濾資料
+          filteredRows = allRows.filter(row => {
+            const nameText = row.cells[0].textContent.toLowerCase();
+            return nameText.includes(keyword);
+          });
+
+          const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+          if (currentPage > totalPages) currentPage = totalPages;
+          if (currentPage < 1) currentPage = 1;
+
+          // 計算當頁區間
+          const start = (currentPage - 1) * itemsPerPage;
+          const end = start + itemsPerPage;
+
+          // 先將所有行從表格移出
+          allRows.forEach(row => {
+            if (row.parentNode) row.parentNode.removeChild(row);
+          });
+
+          // 只把符合條件且在當前頁數的 10 筆資料塞回表格
+          filteredRows.slice(start, end).forEach(row => {
+            table.appendChild(row);
+          });
+
+          // 更新下方頁碼文字 (例如 1 / 111 頁)
+          document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages} 頁`;
+
+          // 按鈕啟用/停用
+          document.getElementById('btnPrev').disabled = (currentPage === 1);
+          document.getElementById('btnNext').disabled = (currentPage === totalPages);
+
+          // 解鎖
+          setTimeout(() => { window.myPagination.isRendering = false; }, 50);
+        }
+
+        // 把方法掛到 window 上，讓 HTML 按钮的 onclick / onchange 叫得到
+        window.myPagination = {
+          isRendering: false,
+          handleSearch: function() {
+            currentPage = 1;
+            showPage();
+          },
+          prevPage: function() {
+            if (currentPage > 1) {
+              currentPage--;
+              showPage();
+            }
+          },
+          nextPage: function() {
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+            if (currentPage < totalPages) {
+              currentPage++;
+              showPage();
+            }
+          }
+        };
+      })();
+    </script>
+
+  </body>
+  
+</html>
